@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8">
+    <title>11 diff</title>
+    <script>
+        function buildDiffCell(segments) {
+            const cell = document.createElement('div');
+            cell.className = 'diff-cell';
+            for (const [text, highlighted] of segments) {
+                if (highlighted) {
+                    const em = document.createElement('em');
+                    em.textContent = text;
+                    cell.appendChild(em);
+                } else {
+                    cell.append(text);
+                }
+            }
+            return cell;
+        }
+
+        function buildStatsCell(stats) {
+            const text = document.createElement('span');
+            text.className = 'stats';
+            text.textContent = [
+                `文字数: ${stats.chars}`,
+                `空白数: ${stats.spaces} 空白込み文字数: ${stats.charsWithSpaces}`,
+                `改行数: ${stats.newlines} 改行込み文字数: ${stats.charsWithNewlines}`,
+                `単語数: ${stats.words}`
+            ].join('\n');
+            const cell = document.createElement('div');
+            cell.className = 'diff-cell';
+            cell.appendChild(text);
+            return cell;
+        }
+
+        function buildResultView(result) {
+            const grid = document.createElement('div');
+            grid.className = 'diff-grid';
+            for (const row of result.rows) {
+                grid.append(...row.map(buildDiffCell));
+            }
+            grid.append(...result.stats.map(buildStatsCell));
+            const wrapper = document.createElement('section');
+            wrapper.appendChild(grid);
+            return wrapper;
+        }
+
+        async function submitDiff() {
+            const result = document.getElementById('result');
+            try {
+                const response = await fetch('/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(["a", "b"].map(id => document.getElementById(`sequence${id}`).value))
+                });
+                if (!response.ok) {
+                    result.textContent = await response.text();
+                    return;
+                }
+                result.replaceChildren(buildResultView(await response.json()));
+            } catch (error) {
+                result.textContent = error instanceof Error ? error.message : String(error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const submit = document.getElementById('submit');
+            submit.addEventListener('click', submitDiff);
+        });
+    </script>
+    <style>
+        :root {
+            --highlight-border: #ff8090;
+            --highlight-background: #ffddee;
+            --cell-border: silver;
+            --stats-color: gray;
+            --page-background: #fbfbfb;
+            --panel-background: #ffffff;
+        }
+
+        * {
+            font-family: verdana, arial, helvetica, sans-serif;
+        }
+
+        body {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 20px 40px;
+            background: var(--page-background);
+            color: #222;
+        }
+
+        textarea,
+        .editor-grid,
+        .diff-grid {
+            font-size: 10pt;
+        }
+
+        textarea {
+            width: 100%;
+            box-sizing: border-box;
+            min-height: 28rem;
+            padding: 10px 12px;
+            border: 1px solid var(--cell-border);
+            background: var(--panel-background);
+            line-height: 1.6;
+            resize: vertical;
+        }
+
+        a {
+            display: inline-block;
+            color: black;
+            text-decoration: none;
+            border-top: solid 5px var(--highlight-border);
+            padding-top: 10px;
+            margin-bottom: 12px;
+        }
+
+        em {
+            font-style: normal;
+            font-weight: bold;
+            color: black;
+            background: var(--highlight-background);
+            border: 1px solid var(--highlight-border);
+        }
+
+        .editor-grid,
+        .diff-grid {
+            width: 95%;
+            margin: 20px;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .editor-pane,
+        .diff-cell {
+            min-width: 0;
+            padding: 4px 15px;
+            background: var(--panel-background);
+        }
+
+        .diff-cell {
+            border-left: solid 1px var(--cell-border);
+            border-right: solid 1px var(--cell-border);
+            white-space: pre-wrap;
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .stats {
+            color: var(--stats-color);
+        }
+
+        #submit {
+            padding: 8px 16px;
+            border: 1px solid var(--highlight-border);
+            background: var(--panel-background);
+            color: black;
+            cursor: pointer;
+        }
+
+        #result {
+            margin-top: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <a href="/">良いdiff</a>
+    <section class="editor-grid" aria-label="比較対象テキスト">
+        <div class="editor-pane">
+            <textarea id="sequencea" rows="20">下記の文章を比較してください。
+   Betty Botter bought some butter, 
+But, she said, this butter's bitter;
+If I put it in my batter,
+It will make my batter bitter,
+But a bit of better butter
+Will make my batter better.
+So she bought a bit of butter
+Better than her bitter butter,
+And she put it in her batter,
+And it made her batter better,
+So 'twas better Betty Botter
+Bought a bit of better butter.</textarea>
+        </div>
+        <div class="editor-pane">
+            <textarea id="sequenceb" rows="20">下記の文章を，ﾋﾋ較してくだちい．
+Betty Botter bought some butter,
+But, she said, the butter's bitter;
+If I put it in my batter,
+That will make my batter bitter.
+But a bit of better butter, 
+That will make my batter better.
+So she bought a bit of butter
+Better than her bitter butter.
+And she put it in her batter,
+And it made her batter better.
+So it was better Betty Botter
+Bought a bit of better butter.</textarea>
+        </div>
+    </section>
+    <input id="submit" type="button" value="比較する">
+    <div id="result" aria-live="polite"></div>
+</body>
+
+</html>

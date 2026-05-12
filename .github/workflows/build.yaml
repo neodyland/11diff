@@ -49,6 +49,8 @@ jobs:
   build:
     name: Build docker
     needs: [ build-wasm ]
+    env:
+      GH_TOKEN: ${{ github.token }}
     strategy:
       matrix:
         include:

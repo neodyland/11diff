@@ -1,14 +1,10 @@
-[package]
-name = "ii-diff"
-version = "0.1.0"
-edition = "2024"
+[workspace]
+resolver = "3"
+members = ["./core", "./server", "./wasm"]
 
-[dependencies]
-anyhow = "1.0.102"
-axum = { version = "0.8.9", features = ["json", "tokio", "http1"], default-features = false }
-serde = { version = "1.0.228", features = ["derive"] }
-similar = { version = "3.1.0", features = ["inline"] }
-tokio = { version = "1.52.3", features = ["net", "rt", "rt-multi-thread", "macros"], default-features = false }
+[workspace.package]
+edition = "2024"
+version = "0.1.0"
 
 [profile.release]
 opt-level = "z"

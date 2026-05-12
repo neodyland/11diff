@@ -10,8 +10,45 @@ permissions:
   actions: read
 
 jobs:
+  build-wasm:
+    name: Build wasm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Setup mise
+        uses: jdx/mise-action@v4
+        with:
+          install_args: "node@latest pnpm@latest"
+      - name: Install wasm-pack
+        run: cargo install wasm-pack
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Build wasm
+        run: |
+          cd ./wasm
+          wasm-pack build --release --target web
+          cd ./js
+          pnpm i
+          pnpm run build
+      - name: Rename artifact
+        run: |
+          mkdir out
+          mv wasm/pkg/index.html out
+          mv wasm/pkg/client.js out
+      - name: Upload artifact(html)
+        uses: actions/upload-artifact@v7
+        with:
+          name: html
+          path: out/index.html
+      - name: Upload artifact(js)
+        uses: actions/upload-artifact@v7
+        with:
+          name: js
+          path: out/client.js
   build:
     name: Build docker
+    needs: [ build-wasm ]
     strategy:
       matrix:
         include:
@@ -23,6 +60,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+      - name: Downlaod artifact(html)
+        run: gh run download ${{ github.run_id }} -p html
+      - name: Downlaod artifact(js)
+        run: gh run download ${{ github.run_id }} -p js
+      - name: Rename paths
+        run: |
+          mkdir wasm/pkg
+          mv html/index.html wasm/pkg
+          mv js/client.js wasm/pkg
       - name: Build cross platform rust binary
         uses: neodyland/cross-rust-action@v0.1.16
         with:

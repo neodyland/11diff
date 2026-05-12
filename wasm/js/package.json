@@ -1,0 +1,16 @@
+{
+  "name": "js",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build:html": "html-minifier ../../server/src/index.html --collapse-whitespace --remove-comments --minify-css true --minify-js true -o ../pkg/index.html",
+    "build:js": "esbuild --bundle --loader:.wasm=binary --platform=browser --format=esm --minify ./lib.ts --outfile=../pkg/client.js",
+    "build": "run-p build:html build:js"
+  },
+  "packageManager": "pnpm@10.33.0",
+  "devDependencies": {
+    "esbuild": "^0.28.0",
+    "html-minifier": "^4.0.0",
+    "npm-run-all": "^4.1.5"
+  }
+}

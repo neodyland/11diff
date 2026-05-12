@@ -1,0 +1,10 @@
+[package]
+name = "iidiff-server"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+anyhow = "1.0.102"
+axum = { version = "0.8.9", features = ["json", "tokio", "http1"], default-features = false }
+tokio = { version = "1.52.3", features = ["net", "rt", "rt-multi-thread", "macros"], default-features = false }
+iidiff-core.path = "../core"

@@ -5,6 +5,14 @@
     <meta charset="utf-8">
     <title>11 diff</title>
     <script>
+        let clientDiff = null;
+        async function toggleClientMode(e) {
+            if (e.target.checked) {
+                clientDiff = (await import("/client.js")).diff;
+            } else {
+                clientDiff = null;
+            }
+        }
         function buildDiffCell(segments) {
             const cell = document.createElement('div');
             cell.className = 'diff-cell';
@@ -50,16 +58,21 @@
         async function submitDiff() {
             const result = document.getElementById('result');
             try {
-                const response = await fetch('/', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(["a", "b"].map(id => document.getElementById(`sequence${id}`).value))
-                });
-                if (!response.ok) {
-                    result.textContent = await response.text();
-                    return;
+                const values = ["a", "b"].map(id => document.getElementById(`sequence${id}`).value);
+                if (clientDiff) {
+                    result.replaceChildren(buildResultView(clientDiff(...values)));
+                } else {
+                    const response = await fetch('/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(values)
+                    });
+                    if (!response.ok) {
+                        result.textContent = await response.text();
+                        return;
+                    }
+                    result.replaceChildren(buildResultView(await response.json()));
                 }
-                result.replaceChildren(buildResultView(await response.json()));
             } catch (error) {
                 result.textContent = error instanceof Error ? error.message : String(error);
             }
@@ -68,6 +81,10 @@
         document.addEventListener('DOMContentLoaded', () => {
             const submit = document.getElementById('submit');
             submit.addEventListener('click', submitDiff);
+        });
+        document.addEventListener('DOMContentLoaded', () => {
+            const clientmode = document.getElementById('clientmode');
+            clientmode.addEventListener('click', toggleClientMode);
         });
     </script>
     <style>
@@ -153,12 +170,56 @@
             color: var(--stats-color);
         }
 
+        .toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: 12px;
+            font-size: 10pt;
+            cursor: pointer;
+            vertical-align: middle;
+        }
+
+        .toggle input {
+            display: none;
+        }
+
+        .toggle-slider {
+            position: relative;
+            width: 36px;
+            height: 20px;
+            background: #ccc;
+            border-radius: 10px;
+            transition: background .2s;
+        }
+
+        .toggle-slider::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            transition: transform .2s;
+        }
+
+        .toggle input:checked+.toggle-slider {
+            background: var(--highlight-border);
+        }
+
+        .toggle input:checked+.toggle-slider::after {
+            transform: translateX(16px);
+        }
+
         #submit {
             padding: 8px 16px;
             border: 1px solid var(--highlight-border);
             background: var(--panel-background);
             color: black;
             cursor: pointer;
+            vertical-align: middle;
         }
 
         #result {
@@ -201,6 +262,11 @@ So it was better Betty Botter
 Bought a bit of better butter.</textarea>
         </div>
     </section>
+    <label class="toggle" title="クライアントサイドdiffを使用する">
+        <input id="clientmode" type="checkbox">
+        <span class="toggle-slider"></span>
+        クライアントモード
+    </label>
     <input id="submit" type="button" value="比較する">
     <div id="result" aria-live="polite"></div>
 </body>

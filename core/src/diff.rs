@@ -55,13 +55,13 @@ type DiffSegment = (String, bool);
 type DiffRow = (Vec<DiffSegment>, Vec<DiffSegment>);
 
 #[derive(Serialize)]
-pub(crate) struct DiffResponse {
+pub struct DiffResponse {
     rows: Vec<DiffRow>,
     stats: [TextStats; 2],
 }
 
 impl DiffResponse {
-    pub(crate) fn build(sequence_a: &str, sequence_b: &str) -> Self {
+    pub fn build(sequence_a: &str, sequence_b: &str) -> Self {
         let a_tokens = split_text(sequence_a);
         let b_tokens = split_text(sequence_b);
         let mut a_marked = Vec::new();

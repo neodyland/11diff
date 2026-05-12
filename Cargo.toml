@@ -5,10 +5,10 @@ edition = "2024"
 
 [dependencies]
 anyhow = "1.0.102"
-axum = { version = "0.8.8", features = ["json", "tokio", "http1"], default-features = false}
+axum = { version = "0.8.9", features = ["json", "tokio", "http1"], default-features = false }
 serde = { version = "1.0.228", features = ["derive"] }
-similar = { version = "3.0.0", features = ["inline"] }
-tokio = { version = "1.51.1", features = ["net", "rt", "rt-multi-thread", "macros"], default-features = false}
+similar = { version = "3.1.0", features = ["inline"] }
+tokio = { version = "1.52.3", features = ["net", "rt", "rt-multi-thread", "macros"], default-features = false }
 
 [profile.release]
 opt-level = "z"

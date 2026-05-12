@@ -1,0 +1,85 @@
+name: Build docker
+
+on:
+  push:
+    branches: [ master ]
+
+permissions:
+  contents: read
+  packages: write
+  actions: read
+
+jobs:
+  build:
+    name: Build docker
+    strategy:
+      matrix:
+        include:
+          - rusttarget: aarch64-unknown-linux-gnu
+            platform: arm64
+          - rusttarget: x86_64-unknown-linux-gnu
+            platform: amd64
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Build cross platform rust binary
+        uses: neodyland/cross-rust-action@v0.1.16
+        with:
+          target: ${{ matrix.rusttarget }}
+          cargo-build-args: --release
+
+      - name: Rename artifact
+        run: |
+          mkdir out
+          mkdir out/ii-diff
+          mv target/${{ matrix.rusttarget }}/release/ii-diff out/ii-diff/binary-${{ matrix.platform }}
+
+      - name: Upload ii-diff
+        uses: actions/upload-artifact@v7
+        with:
+          name: ii-diff-${{ matrix.platform }}
+          path: out/ii-diff/binary-${{ matrix.platform }}
+
+  release:
+    name: Release docker image
+    runs-on: ubuntu-latest
+    needs: [ build ]
+    env:
+      GH_TOKEN: ${{ github.token }}
+      IMAGE_NAME_PREFIX: 11diff
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Downlaod ii-diff
+        run: gh run download ${{ github.run_id }} -p ii-diff-*
+
+      - name: Rename paths
+        run: |
+          mkdir .out
+          mv ii-diff-*/binary-* .out/
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v7
+        with:
+          platforms: linux/amd64,linux/arm64
+          file: ./.github/workflows/build.Dockerfile
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME_PREFIX }}:latest
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME_PREFIX }}:${{ github.sha }}

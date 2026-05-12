@@ -81,7 +81,7 @@ jobs:
         run: |
           mkdir out
           mkdir out/ii-diff
-          mv target/${{ matrix.rusttarget }}/release/ii-diff out/ii-diff/binary-${{ matrix.platform }}
+          mv target/${{ matrix.rusttarget }}/release/iidiff-server out/ii-diff/binary-${{ matrix.platform }}
 
       - name: Upload ii-diff
         uses: actions/upload-artifact@v7

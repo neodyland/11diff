@@ -1,6 +1,8 @@
 # 11-diff
 A simple web diff viewer written in Rust.
 
+https://11diff.neody.land/
+
 # Licensing
 This project is an independent reimplementation based on the publicly observable behavior and interface of [the original website](https://difff.jp). The original website's source code is distributed under the BSD 2-Clause License. However, this implementation was written from scratch without consulting the original source code, and is therefore dual-licensed under either the MIT License or the WTFPL, at your option.
 

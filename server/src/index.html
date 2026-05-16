@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <title>11 diff</title>
+    <meta name="description" content="簡単にテキストのdiffを比較出来ます。サーバーにコンテンツを送らないモードもあります。" />
     <script>
         let clientDiff = null;
         async function toggleClientMode(e) {
@@ -225,6 +226,19 @@
         #result {
             margin-top: 12px;
         }
+
+        .footer {
+            margin-top: 48px;
+            font-size: 10pt;
+            color: var(--stats-color);
+        }
+
+        .footer a {
+            border: none;
+            padding: 0;
+            margin: 0;
+            color: #0066cc;
+        }
     </style>
 </head>
 
@@ -265,10 +279,11 @@ Bought a bit of better butter.</textarea>
     <label class="toggle" title="クライアントサイドdiffを使用する">
         <input id="clientmode" type="checkbox">
         <span class="toggle-slider"></span>
-        クライアントモード
+        クライアントモード(ブラウザ上でdiffを計算します)
     </label>
     <input id="submit" type="button" value="比較する">
     <div id="result" aria-live="polite"></div>
+    <p class="footer">ソースコードは <a href="https://github.com/neodyland/11diff" target="_blank" rel="noopener">GitHub</a> でMITライセンスで公開されています。</p>
 </body>
 
 </html>

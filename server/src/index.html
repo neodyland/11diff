@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>11 diff</title>
     <meta name="description" content="簡単にテキストのdiffを比較出来ます。サーバーにコンテンツを送らないモードもあります。" />
     <script>
@@ -145,9 +146,16 @@
         }
 
         .editor-grid,
-        .diff-grid {
+        .diff-grid,
+        .submit-section,
+        .header {
             width: 95%;
             margin: 20px;
+        }
+
+
+        .editor-grid,
+        .diff-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
@@ -175,10 +183,10 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            margin-right: 12px;
             font-size: 10pt;
             cursor: pointer;
             vertical-align: middle;
+            margin-bottom: 12px;
         }
 
         .toggle input {
@@ -227,6 +235,11 @@
             margin-top: 12px;
         }
 
+        .header {
+            font-size: 10pt;
+            color: var(--stats-color);
+        }
+
         .footer {
             margin-top: 48px;
             font-size: 10pt;
@@ -239,11 +252,48 @@
             margin: 0;
             color: #0066cc;
         }
+
+        @media (max-width: 768px) {
+            body {
+                max-width: 100%;
+                padding: 12px 8px 24px;
+            }
+
+            textarea {
+                min-height: 12rem;
+            }
+
+            .editor-grid,
+            .diff-grid {
+                width: 100%;
+                margin: 12px 0;
+                grid-template-columns: 1fr;
+            }
+
+            .editor-pane,
+            .diff-cell {
+                padding: 4px 8px;
+            }
+
+            ::placeholder {
+                font-size: 9pt;
+            }
+
+            .toggle {
+                font-size: 9pt;
+                gap: 4px;
+            }
+
+            #submit {
+                padding: 8px 12px;
+            }
+        }
     </style>
 </head>
 
 <body>
     <a href="/">良いdiff</a>
+    <p class="header">簡単にテキストのdiffを比較出来ます。クライアントモードはサーバーに送信せず、ブラウザ上でdiffを計算します。</p>
     <section class="editor-grid" aria-label="比較対象テキスト">
         <div class="editor-pane">
             <textarea id="sequencea" rows="20">下記の文章を比較してください。
@@ -276,14 +326,18 @@ So it was better Betty Botter
 Bought a bit of better butter.</textarea>
         </div>
     </section>
-    <label class="toggle" title="クライアントサイドdiffを使用する">
-        <input id="clientmode" type="checkbox">
-        <span class="toggle-slider"></span>
-        クライアントモード(ブラウザ上でdiffを計算します)
-    </label>
-    <input id="submit" type="button" value="比較する">
+    <section class="submit-section">
+        <label class="toggle" title="クライアントサイドdiffを使用する">
+            <input id="clientmode" type="checkbox">
+            <span class="toggle-slider"></span>
+            クライアントモード
+        </label>
+        <div>
+            <input id="submit" type="button" value="比較する">
+        </div>
+    </section>
     <div id="result" aria-live="polite"></div>
-    <p class="footer">ソースコードは <a href="https://github.com/neodyland/11diff" target="_blank" rel="noopener">GitHub</a> でMITライセンスで公開されています。</p>
+    <p class="footer">ソースコードは <a href="https://github.com/neodyland/11diff" target="_blank" rel="noopener">GitHub</a> で公開されています。</p>
 </body>
 
 </html>

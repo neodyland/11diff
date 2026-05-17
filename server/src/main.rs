@@ -18,6 +18,18 @@ async fn main() -> anyhow::Result<()> {
                 .post(async |Json([a, b]): Json<[String; 2]>| Json(DiffResponse::build(&a, &b))),
         )
         .route(
+            "/sitemap.xml",
+            get(async || {
+                (
+                    [(
+                        header::CONTENT_TYPE,
+                        HeaderValue::from_static("application/xml"),
+                    )],
+                    include_str!("./sitemap.xml"),
+                )
+            }),
+        )
+        .route(
             "/client.js",
             get(async || {
                 (

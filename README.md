@@ -15,3 +15,6 @@ Accordingly, no formal attribution is required. However, as a gesture of respect
 https://github.com/meso-cacase/difff
 
 You also are not required to provide attribution, but you may wish to credit the original repository linked above when modifying this software.
+
+# Notice
+would recommend modifying ./server/src/sitemap.xml after changes.
